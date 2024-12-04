@@ -124,7 +124,7 @@ resource "aws_eip" "static_eip" {
 
 # ECR Repository for webapp
 resource "aws_ecr_repository" "webapp" {
-  name                 = "webapp"
+  name                 = "clo835-finalproject-webapp"
   image_tag_mutability = "MUTABLE"
 
   tags = merge(local.default_tags,
@@ -136,7 +136,7 @@ resource "aws_ecr_repository" "webapp" {
 
 # ECR Repository for dbapp
 resource "aws_ecr_repository" "dbapp" {
-  name                 = "dbapp"
+  name                 = "clo835-finalproject-mysql"
   image_tag_mutability = "MUTABLE"
 
   tags = merge(local.default_tags,
