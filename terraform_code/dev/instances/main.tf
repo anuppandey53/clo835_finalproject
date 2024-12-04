@@ -129,7 +129,7 @@ resource "aws_ecr_repository" "webapp" {
 
   tags = merge(local.default_tags,
     {
-      "Name" = "${local.name_prefix}-webapp"
+      "Name" = "clo835-finalproject-webapp"
     }
   )
 }
@@ -141,7 +141,7 @@ resource "aws_ecr_repository" "dbapp" {
 
   tags = merge(local.default_tags,
     {
-      "Name" = "${local.name_prefix}-dbapp"
+      "Name" = "clo835-finalproject-mysql"
     }
   )
 }
