@@ -68,9 +68,16 @@ BACKGROUND_IMAGE_PATH = IMAGE_PATH
 print(f"Background image path: {BACKGROUND_IMAGE_PATH}")
 
 
-@app.route("/", methods=['GET', 'POST'])
+
+
+# @app.route("/", methods=['GET', 'POST'])
+# def home():
+#     return render_template('addemp.html', background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
+
+@app.route("/")
 def home():
-    return render_template('addemp.html', background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
+    # Assuming BACKGROUND_IMAGE_PATH is the relative path to the image
+    return render_template("addemp.html", BACKGROUND_IMAGE_PATH="static/downloads/sample1.jpeg")
 
 @app.route("/about", methods=['GET','POST'])
 def about():

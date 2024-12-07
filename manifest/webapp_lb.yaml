@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp
+  namespace: final
+  labels:
+    app: employees
+    component: frontend
+spec:
+  type: LoadBalancer  # Exposing the service via a cloud load balancer (works with supported cloud providers)
+  ports:
+  - port: 81
+    targetPort: 81
+  selector:
+    app: employees  # Ensure your pods have this label
