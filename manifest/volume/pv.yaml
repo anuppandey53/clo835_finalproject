@@ -4,11 +4,11 @@ metadata:
   name: mysql-pv
 spec:
   capacity:
-    storage: 11Gi
+    storage: 2Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: gp2
   awsElasticBlockStore:
-    volumeID: vol-058924eb066e6e6ab
+    volumeID: vol-04d9c446899ba0a04
     fsType: ext4
