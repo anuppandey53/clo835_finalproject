@@ -3,11 +3,10 @@ from pymysql import connections
 import os
 import random
 import argparse
+import requests  # Import the requests module
 
 # Import the required libraries
-
 from flask import send_from_directory
-
 
 app = Flask(__name__)
 
@@ -31,30 +30,28 @@ else:
 
 # Create a connection to the MySQL database
 db_conn = connections.Connection(
-    host= DBHOST,
+    host=DBHOST,
     port=DBPORT,
-    user= DBUSER,
-    password= DBPWD, 
-    db= DATABASE
-    
+    user=DBUSER,
+    password=DBPWD, 
+    db=DATABASE
 )
 output = {}
-table = 'employee';
-
+table = 'employee'
 
 # Define the path where you'll save the downloaded image
 DOWNLOADS_PATH = "static/downloads"
 if not os.path.exists(DOWNLOADS_PATH):
     os.makedirs(DOWNLOADS_PATH)
     
- # The public S3 object URL
+# The public S3 object URL
 IMAGE_URL = "https://gp-12-finalproject-clo835.s3.us-east-1.amazonaws.com/sample1.jpeg"
 
 # Define the local path where you want to save the image
 IMAGE_PATH = os.path.join(DOWNLOADS_PATH, "sample1.jpeg")
 
 # Download the image from the S3 URL
-response = requests.get(IMAGE_URL)
+response = requests.get(IMAGE_URL)  # Use the IMAGE_URL variable here
 if response.status_code == 200:
     with open(IMAGE_PATH, "wb") as f:
         f.write(response.content)
@@ -62,17 +59,9 @@ if response.status_code == 200:
 else:
     print(f"Failed to download image. Status code: {response.status_code}")
 
-    
 # Define the local path for the background image
 BACKGROUND_IMAGE_PATH = IMAGE_PATH
 print(f"Background image path: {BACKGROUND_IMAGE_PATH}")
-
-
-
-
-# @app.route("/", methods=['GET', 'POST'])
-# def home():
-#     return render_template('addemp.html', background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
 
 @app.route("/")
 def home():
@@ -91,16 +80,13 @@ def AddEmp():
     primary_skill = request.form['primary_skill']
     location = request.form['location']
 
-  
     insert_sql = "INSERT INTO employee VALUES (%s, %s, %s, %s, %s)"
     cursor = db_conn.cursor()
 
     try:
-        
-        cursor.execute(insert_sql,(emp_id, first_name, last_name, primary_skill, location))
+        cursor.execute(insert_sql, (emp_id, first_name, last_name, primary_skill, location))
         db_conn.commit()
         emp_name = "" + first_name + " " + last_name
-
     finally:
         cursor.close()
 
@@ -111,7 +97,6 @@ def AddEmp():
 def GetEmp():
      return render_template("getemp.html", background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
 
-
 @app.route("/fetchdata", methods=['GET','POST'])
 def FetchData():
     emp_id = request.form['emp_id']
@@ -121,25 +106,26 @@ def FetchData():
     cursor = db_conn.cursor()
 
     try:
-        cursor.execute(select_sql,(emp_id))
+        cursor.execute(select_sql, (emp_id,))
         result = cursor.fetchone()
         
-        # Add No Employee found form
-        output["emp_id"] = result[0]
-        output["first_name"] = result[1]
-        output["last_name"] = result[2]
-        output["primary_skills"] = result[3]
-        output["location"] = result[4]
+        if result:
+            output["emp_id"] = result[0]
+            output["first_name"] = result[1]
+            output["last_name"] = result[2]
+            output["primary_skills"] = result[3]
+            output["location"] = result[4]
+        else:
+            return "Employee not found!", 404
         
     except Exception as e:
         print(e)
-
+        return "Error fetching data!", 500
     finally:
         cursor.close()
 
     return render_template("getempoutput.html", id=output["emp_id"], fname=output["first_name"],
-                           lname=output["last_name"], interest=output["primary_skills"], location=output["location"],  background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
+                           lname=output["last_name"], interest=output["primary_skills"], location=output["location"], 
+                           background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
 
-
-
-app.run(host='0.0.0.0',port=81,debug=True)
+app.run(host='0.0.0.0', port=81, debug=True)
