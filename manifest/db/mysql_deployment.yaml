@@ -20,10 +20,10 @@ spec:
     spec:
       imagePullSecrets:
         - name: ecr-secrets
-      serviceAccountName: clo835-group12  # Assign the created ServiceAccount
+      serviceAccountName: clo835-group  # Assign the created ServiceAccount
       containers:
-        - name: mysql-db
-          image: 911048994404.dkr.ecr.us-east-1.amazonaws.com/clo835-finalproject-mysql:latest
+        - name: mysql
+          image: 911048994404.dkr.ecr.us-east-1.amazonaws.com/db-repository:latest
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
