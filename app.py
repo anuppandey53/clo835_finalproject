@@ -1,77 +1,61 @@
 from flask import Flask, render_template, request
 from pymysql import connections
 import os
-import random
-import argparse
-import requests  # Import the requests module
-
-# Import the required libraries
-from flask import send_from_directory
+import requests
 
 app = Flask(__name__)
 
+# Environment variables with fallback defaults
 DBHOST = os.environ.get("DBHOST") or "localhost"
 DBUSER = os.environ.get("DBUSER") or "root"
-DBPWD = os.environ.get("DBPWD") or "passwors"
+DBPWD = os.environ.get("DBPWD") or "password"
 DATABASE = os.environ.get("DATABASE") or "employees"
-COLOR_FROM_ENV = os.environ.get('APP_COLOR') or "lime"
-IMAGE_URL = os.environ.get("IMAGE_URL") or "Broken IMG"
-GROUP_NAME = os.environ.get("GROUP_NAME")
+IMAGE_URL = os.environ.get("IMAGE_URL") or "https://gp-12-finalproject-clo835.s3.us-east-1.amazonaws.com/sample1.jpeg"
+GROUP_NAME = os.environ.get("GROUP_NAME") or "GROUP12"
 
-DBPORT = os.environ.get("DBPORT")
-if DBPORT is not None:
-    try:
-        DBPORT = int(DBPORT)
-    except ValueError:
-        print("Invalid value for DBPORT. Using default port.")
-        DBPORT = 3306
-else:
-    DBPORT = 3306
+# Debugging to check if environment variables are loaded
+print(f"GROUP_NAME: {GROUP_NAME}")
+print(f"IMAGE_URL: {IMAGE_URL}")
 
-# Create a connection to the MySQL database
+DBPORT = int(os.environ.get("DBPORT", 3306))
+
+# MySQL connection
 db_conn = connections.Connection(
     host=DBHOST,
     port=DBPORT,
     user=DBUSER,
-    password=DBPWD, 
+    password=DBPWD,
     db=DATABASE
 )
-output = {}
-table = 'employee'
 
-# Define the path where you'll save the downloaded image
+# Directory for storing the downloaded image
 DOWNLOADS_PATH = "static/downloads"
 if not os.path.exists(DOWNLOADS_PATH):
     os.makedirs(DOWNLOADS_PATH)
-    
-# The public S3 object URL
-IMAGE_URL = "https://gp-12-finalproject-clo835.s3.us-east-1.amazonaws.com/sample1.jpeg"
 
-# Define the local path where you want to save the image
-IMAGE_PATH = os.path.join(DOWNLOADS_PATH, "sample1.jpeg")
-
-# Download the image from the S3 URL
-response = requests.get(IMAGE_URL)  # Use the IMAGE_URL variable here
+# Download the image from the provided S3 URL
+IMAGE_PATH = os.path.join(DOWNLOADS_PATH, "sample1.jpg")
+response = requests.get(IMAGE_URL)
 if response.status_code == 200:
     with open(IMAGE_PATH, "wb") as f:
         f.write(response.content)
-    print(f"Image downloaded successfully and saved to {IMAGE_PATH}")
+    print("Image downloaded successfully.")
 else:
     print(f"Failed to download image. Status code: {response.status_code}")
 
-# Define the local path for the background image
-BACKGROUND_IMAGE_PATH = IMAGE_PATH
+# Define background image path for templates
+BACKGROUND_IMAGE_PATH = "/static/downloads/sample1.jpg"
 print(f"Background image path: {BACKGROUND_IMAGE_PATH}")
 
-@app.route("/")
+# Flask routes
+@app.route("/", methods=['GET', 'POST'])
 def home():
-    # Assuming BACKGROUND_IMAGE_PATH is the relative path to the image
-    return render_template("addemp.html", BACKGROUND_IMAGE_PATH="static/downloads/sample1.jpeg")
+    return render_template('addemp.html', background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
 
-@app.route("/about", methods=['GET','POST'])
+@app.route("/about", methods=['GET', 'POST'])
 def about():
     return render_template('about.html', background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
-    
+
 @app.route("/addemp", methods=['POST'])
 def AddEmp():
     emp_id = request.form['emp_id']
@@ -86,29 +70,27 @@ def AddEmp():
     try:
         cursor.execute(insert_sql, (emp_id, first_name, last_name, primary_skill, location))
         db_conn.commit()
-        emp_name = "" + first_name + " " + last_name
+        emp_name = f"{first_name} {last_name}"
     finally:
         cursor.close()
 
-    print("all modification done...")
     return render_template('addempoutput.html', name=emp_name, background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
 
 @app.route("/getemp", methods=['GET', 'POST'])
 def GetEmp():
-     return render_template("getemp.html", background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
+    return render_template("getemp.html", background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
 
-@app.route("/fetchdata", methods=['GET','POST'])
+@app.route("/fetchdata", methods=['POST'])
 def FetchData():
     emp_id = request.form['emp_id']
 
     output = {}
-    select_sql = "SELECT emp_id, first_name, last_name, primary_skill, location from employee where emp_id=%s"
+    select_sql = "SELECT emp_id, first_name, last_name, primary_skill, location FROM employee WHERE emp_id=%s"
     cursor = db_conn.cursor()
 
     try:
         cursor.execute(select_sql, (emp_id,))
         result = cursor.fetchone()
-        
         if result:
             output["emp_id"] = result[0]
             output["first_name"] = result[1]
@@ -116,16 +98,13 @@ def FetchData():
             output["primary_skills"] = result[3]
             output["location"] = result[4]
         else:
-            return "Employee not found!", 404
-        
-    except Exception as e:
-        print(e)
-        return "Error fetching data!", 500
+            return "Employee not found."
     finally:
         cursor.close()
 
     return render_template("getempoutput.html", id=output["emp_id"], fname=output["first_name"],
-                           lname=output["last_name"], interest=output["primary_skills"], location=output["location"], 
-                           background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
+                           lname=output["last_name"], interest=output["primary_skills"],
+                           location=output["location"], background_image=BACKGROUND_IMAGE_PATH, GROUP_NAME=GROUP_NAME)
 
-app.run(host='0.0.0.0', port=81, debug=True)
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=81, debug=True)
