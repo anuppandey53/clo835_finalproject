@@ -5,7 +5,6 @@ import random
 import argparse
 
 # Import the required libraries
-import requests
 from flask import send_from_directory
 
 
