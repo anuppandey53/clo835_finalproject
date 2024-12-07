@@ -15,10 +15,10 @@ spec:
       labels:
         app: employees
     spec:
-      serviceAccountName: clo835-group12  # Assign the created ServiceAccount
+      serviceAccountName: clo835-group  # Assign the created ServiceAccount
       containers:
         - name: webapp
-          image: 911048994404.dkr.ecr.us-east-1.amazonaws.com/clo835-finalproject-webapp:latest
+          image: 911048994404.dkr.ecr.us-east-1.amazonaws.com/app-repository:latest
           ports:
             - containerPort: 81
           env:
