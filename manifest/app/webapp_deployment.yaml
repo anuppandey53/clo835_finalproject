@@ -37,8 +37,6 @@ spec:
                 configMapKeyRef:
                   name: webapp
                   key: DBUSER      
-            
-              
             - name: DBPWD
               valueFrom:
                 secretKeyRef:
@@ -49,8 +47,6 @@ spec:
                 secretKeyRef:
                   name: mysql-secrets
                   key: mysql-database
-            
-              
             - name: GROUP_NAME
               valueFrom:
                 configMapKeyRef:
