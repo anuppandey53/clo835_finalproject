@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Add Employee Information  |  {{ GROUP_NAME }}</title>
+	<title>Add Employee Information  </title>
+		<style>
+        body {
+            background-image: url('{{ background_image }}');
+            background-size: contain;
+    		background-repeat: no-repeat; /* Prevents tiling */
+    		background-position: center;
+        }
+    </style>
 </head>
 <center>
 	<font color="black" size="4" style="font-family: avenir">
 
-		<h1 style="color: DodgerBlue">Employee Database</h1>
-		<body style="background: url({{background_image}});" >
+		<h1 style="color: DodgerBlue">Employee Database |  {{ GROUP_NAME }}</h1>
+		<body>
 
 			<form action="/addemp" autocomplete="on" method = "POST" enctype="multipart/form-data">
 
