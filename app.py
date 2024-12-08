@@ -5,21 +5,22 @@ import requests
 
 app = Flask(__name__)
 
-# Environment variables with fallback defaults
-DBHOST = os.environ.get("DBHOST") or "localhost"
-DBUSER = os.environ.get("DBUSER") or "root"
-DBPWD = os.environ.get("DBPWD") or "password"
-DATABASE = os.environ.get("DATABASE") or "employees"
-IMAGE_URL = os.environ.get("IMAGE_URL") or "https://gp-12-finalproject-clo835.s3.us-east-1.amazonaws.com/sample1.jpeg"
-GROUP_NAME = os.environ.get("GROUP_NAME") or "GROUP12"
+# Read environment variables set by Kubernetes ConfigMap
+IMAGE_URL = os.environ.get("IMAGE_URL", "https://gp-12-finalproject-clo835.s3.us-east-1.amazonaws.com/sample1.jpeg")
+GROUP_NAME = os.environ.get("GROUP_NAME", "GROUP12")
 
 # Debugging to check if environment variables are loaded
 print(f"GROUP_NAME: {GROUP_NAME}")
 print(f"IMAGE_URL: {IMAGE_URL}")
 
+# MySQL database connection details
+DBHOST = os.environ.get("DBHOST", "localhost")
+DBUSER = os.environ.get("DBUSER", "root")
+DBPWD = os.environ.get("DBPWD", "password")
+DATABASE = os.environ.get("DATABASE", "employees")
 DBPORT = int(os.environ.get("DBPORT", 3306))
 
-# MySQL connection
+# MySQL connection setup
 db_conn = connections.Connection(
     host=DBHOST,
     port=DBPORT,
@@ -28,12 +29,12 @@ db_conn = connections.Connection(
     db=DATABASE
 )
 
-# Directory for storing the downloaded image
+# Directory for storing downloaded images
 DOWNLOADS_PATH = "static/downloads"
 if not os.path.exists(DOWNLOADS_PATH):
     os.makedirs(DOWNLOADS_PATH)
 
-# Download the image from the provided S3 URL
+# Download the image from the provided URL (if needed)
 IMAGE_PATH = os.path.join(DOWNLOADS_PATH, "sample1.jpeg")
 response = requests.get(IMAGE_URL)
 if response.status_code == 200:
@@ -43,7 +44,7 @@ if response.status_code == 200:
 else:
     print(f"Failed to download image. Status code: {response.status_code}")
 
-# Define background image path for templates
+# Define the background image path for templates
 BACKGROUND_IMAGE_PATH = "/static/downloads/sample1.jpeg"
 print(f"Background image path: {BACKGROUND_IMAGE_PATH}")
 
