@@ -34,7 +34,7 @@ if not os.path.exists(DOWNLOADS_PATH):
     os.makedirs(DOWNLOADS_PATH)
 
 # Download the image from the provided S3 URL
-IMAGE_PATH = os.path.join(DOWNLOADS_PATH, "sample1.jpg")
+IMAGE_PATH = os.path.join(DOWNLOADS_PATH, "sample1.jpeg")
 response = requests.get(IMAGE_URL)
 if response.status_code == 200:
     with open(IMAGE_PATH, "wb") as f:
@@ -44,7 +44,7 @@ else:
     print(f"Failed to download image. Status code: {response.status_code}")
 
 # Define background image path for templates
-BACKGROUND_IMAGE_PATH = "/static/downloads/sample1.jpg"
+BACKGROUND_IMAGE_PATH = "/static/downloads/sample1.jpeg"
 print(f"Background image path: {BACKGROUND_IMAGE_PATH}")
 
 # Flask routes
